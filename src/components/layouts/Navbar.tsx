@@ -50,7 +50,7 @@ function NavItem({
 export default function Navbar() {
 	const navigate = useNavigate();
 	const location = useLocation();
-	const { authenticated, logout, loading } = useAuth();
+	const { authenticated, signout, loading } = useAuth();
 
 	const [openCalc, setOpenCalc] = useState(false);
 	const [mobileOpen, setMobileOpen] = useState(false);
@@ -65,7 +65,7 @@ export default function Navbar() {
 
 	const authButton = (
 		<button
-			onClick={() => (authenticated ? logout() : navigate("/signin"))}
+			onClick={() => (authenticated ? signout() : navigate("/signin"))}
 			className="px-3 py-2 rounded border text-sm hover:bg-slate-50 w-full sm:w-auto"
 		>
 			{authenticated ? "Logout" : "Login"}

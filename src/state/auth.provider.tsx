@@ -80,22 +80,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 			// ============================ SIGNOUT / LOGOUT ============================
 			async signout() {
 				try {
-					// Clear backend cookie
 					await api.post(ENDPOINTS.signout, {}, { withCredentials: true });
 				} catch (err) {
 					console.warn("Signout request failed:", err);
 				} finally {
-					// Clear frontend state & token
 					setUser(null);
-					localStorage.removeItem("taxlator_token");
-
-					// Force page reload to fully reset state
 					window.location.href = "/signin";
 				}
 			},
 
 			logout() {
-				// Local-only logout if needed
 				setUser(null);
 				localStorage.removeItem("taxlator_token");
 				window.location.href = "/signin";

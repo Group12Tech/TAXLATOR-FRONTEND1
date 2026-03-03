@@ -1,8 +1,13 @@
+// =========================================
 // src/pages/Profile.tsx
+// =========================================
+
+// =========================================
 import { useEffect, useState } from "react";
 import { api } from "../../api/client";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../state/useAuth";
+// =========================================
 
 /* ================= TYPES ================= */
 export type UserProfile = {
@@ -16,7 +21,7 @@ export type UserProfile = {
 };
 
 export default function Profile() {
-	const { signout } = useAuth(); // ✅ removed `user`
+	const { signout } = useAuth();
 	const navigate = useNavigate();
 	const [profile, setProfile] = useState<UserProfile | null>(null);
 
