@@ -1,10 +1,8 @@
 ---
-name: "[ frontend ]"
-about: Used for allocation frontend tasks.
-title: FRONTEND
-labels: ''
-assignees: Group12-Tech
-
+name: "Frontend Task"
+about: Use this template for creating frontend development tasks.
+title: "[Frontend] "
+labels: FRONTEND
 ---
 
 
