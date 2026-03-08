@@ -20,6 +20,7 @@ const Terms_Conditions = lazy(
 // ===============================
 
 // =============================== PUBLIC ROUTES ===============================
+
 const PublicRoutes = [
 	<Route key="/" path="/" element={<Layout />} />,
 	<Route key="/calculate" path="/calculate" element={<Calculate />} />,
@@ -36,5 +37,6 @@ const PublicRoutes = [
 		element={<Terms_Conditions />}
 	/>,
 ];
+// ===============================
 
 export default PublicRoutes;

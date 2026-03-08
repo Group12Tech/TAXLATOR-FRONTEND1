@@ -1,13 +1,16 @@
-// src/components/Navbar.tsx
+// =============================
+// src/components/layouts/Navbar.tsx
+// =============================
 
-// ----------------------------------------------
+// =============================
 import React, { useState } from "react";
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import CalculateModal from "../../components/ui/modals/CalculateModal";
 import { useAuth } from "../../state/useAuth";
 import { Menu, X } from "lucide-react";
+// =============================
 
-// ------------------------------ NAVBAR COMPONENT --------------------------------
+// ============================= NAVBAR COMPONENT =============================
 function NavItem({
 	to,
 	children,

@@ -1,5 +1,8 @@
+// =============================
 // taxlator/src/components/Footer.tsx
-// ------------------------------------
+// =============================
+
+// =============================
 import {
 	FaFacebookF,
 	FaInstagram,
@@ -7,19 +10,21 @@ import {
 	FaXTwitter,
 } from "react-icons/fa6";
 import { FaApple, FaAndroid } from "react-icons/fa";
+// =============================
 
+// ============================= FOOTER COMPONENT =============================
 export default function Footer() {
 	return (
-		<footer className="bg-white border-t font-bold w-full">
-			<div className="max-w-6xl mx-auto px-4 py-10">
+		<footer className="bg-white border-t font-bold w-full shrink-0 py-6 min-h-[200px]">
+			<div className="max-w-6xl mx-auto px-4">
 				<div className="flex flex-col lg:flex-row lg:justify-between gap-8">
-					{/* Copyright */}
-					<div className="text-sm text-slate-600">
+					{/* ========================== Copyright ========================== */}
+					<div className="text-sm text-slate-600 flex-shrink-0">
 						<p>© {new Date().getFullYear()} Taxlator.</p>
 					</div>
 
-					{/* About */}
-					<div className="space-y-2 text-sm text-slate-700">
+					{/* ========================== About ========================== */}
+					<div className="space-y-2 text-sm text-slate-700 flex-shrink-0">
 						<a href="/about" className="block hover:text-brand-700">
 							About Us
 						</a>
@@ -31,8 +36,8 @@ export default function Footer() {
 						</a>
 					</div>
 
-					{/* Help */}
-					<div className="space-y-2 text-sm text-slate-700 ">
+					{/* ========================== Help ========================== */}
+					<div className="space-y-2 text-sm text-slate-700 flex-shrink-0">
 						<a href="/#help" className="block hover:text-brand-700">
 							Help
 						</a>
@@ -44,8 +49,8 @@ export default function Footer() {
 						</a>
 					</div>
 
-					{/* Social */}
-					<div>
+					{/*========================== Social ========================== */}
+					<div className="flex flex-col flex-shrink-0">
 						<p className="mb-2 text-sm font-medium text-slate-800">
 							Follow Us:
 						</p>
@@ -57,8 +62,8 @@ export default function Footer() {
 						</div>
 					</div>
 
-					{/* Mobile App */}
-					<div>
+					{/* ========================== Mobile App ========================== */}
+					<div className="flex flex-col flex-shrink-0">
 						<p className="mb-2 text-sm font-medium text-slate-800">
 							Mobile App:
 						</p>
@@ -70,7 +75,6 @@ export default function Footer() {
 							>
 								<FaAndroid className="h-5 w-5 cursor-pointer hover:text-brand-700" />
 							</a>
-
 							<FaApple className="h-5 w-5 cursor-pointer hover:text-brand-700" />
 						</div>
 					</div>

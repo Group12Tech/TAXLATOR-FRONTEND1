@@ -1,4 +1,8 @@
-// src/pages/Landing.tsx
+// =============================
+// src/pages/landingPage/Layout.tsx
+// =============================
+
+// =============================
 import {
 	Hero,
 	HowItWorks,
@@ -6,7 +10,9 @@ import {
 	About,
 	CTA,
 } from "../../components/landingPage";
+// =============================
 
+// ============================= LAYOUT COMPONENT =============================
 export default function Landing() {
 	return (
 		<div className="bg-white min-h-screen w-full">
