@@ -12,6 +12,7 @@ import inputStyles from "../../components/ui/inputs/InputStyles";
 import FormButton from "../../components/ui/buttons/FormButton";
 import { api } from "../../api/client";
 import { AxiosError } from "axios";
+import { Eye, EyeOff } from "lucide-react";
 // ====================================
 
 // ====================================
@@ -19,6 +20,17 @@ type SigninResponse = {
 	success?: boolean;
 	message?: string;
 };
+
+// type SigninResponse = {
+//   success: boolean
+//   message: string
+//   token: string
+//   user: {
+//     id: string
+//     email: string
+//     fullName: string
+//   }
+// }
 
 // ==================================== SIGN IN COMPONENT ====================================
 export default function SignIn() {
@@ -28,6 +40,7 @@ export default function SignIn() {
 
 	useEffect(() => {
 		if (user) navigate("/dashboard", { replace: true });
+		console.log(user, "user data here")
 	}, [user, navigate]);
 
 	const initialEmail = (location.state as { email?: string })?.email ?? "";
@@ -53,12 +66,13 @@ export default function SignIn() {
 				{ email, password },
 				{ withCredentials: true },
 			);
-
+			
+			console.log(data)
 			if (!data.success) {
 				setError(data.message || "Signin failed");
 				return;
 			}
-
+			console.log(data)
 			await refresh();
 			navigate("/dashboard", { replace: true });
 		} catch (err: unknown) {
@@ -126,7 +140,13 @@ export default function SignIn() {
 							className="absolute inset-y-0 right-3 flex items-center text-slate-500 hover:text-slate-700"
 							aria-label={showPassword ? "Hide password" : "Show password"}
 						>
-							{showPassword ? "🙈" : "👁"}
+							{
+							  showPassword ? 
+							  <Eye />
+							   : 
+							  <EyeOff className="h-4 text-blue-600"/>
+							}
+						
 						</button>
 					</div>
 

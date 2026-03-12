@@ -5,6 +5,7 @@
 // ===============================
 import { lazy } from "react";
 import { Route } from "react-router-dom";
+import Profile from "../pages/otherPages/Profile";
 // ===============================
 
 // Lazy-load page components
@@ -26,6 +27,7 @@ const PublicRoutes = [
 	<Route key="/calculate" path="/calculate" element={<Calculate />} />,
 	<Route key="/taxguide" path="/taxguide" element={<TaxGuides />} />,
 	<Route key="/about" path="/about" element={<About />} />,
+	<Route key="/profile" path="/profile" element={<Profile />} />,
 	<Route
 		key="/privacy_policy"
 		path="/privacy_policy"

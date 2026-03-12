@@ -11,6 +11,7 @@ import MotionButton from "../../components/ui/buttons/MotionButton";
 import inputStyles from "../../components/ui/inputs/InputStyles";
 import FormButton from "../../components/ui/buttons/FormButton";
 import PasswordHelper from "../../components/ui/inputs/PasswordHelper";
+import { Eye, EyeOff } from "lucide-react";
 
 // -------------------------------- SIGN UP COMPONENT --------------------------------
 export default function SignUp() {
@@ -147,7 +148,12 @@ export default function SignUp() {
 							onClick={() => setShowPassword((p) => !p)}
 							className="absolute inset-y-0 right-3 flex items-center text-slate-500 hover:text-slate-700"
 						>
-							{showPassword ? "🙈" : "👁"}
+							{
+							  showPassword ? 
+							  <Eye />
+							   : 
+							  <EyeOff className="h-4 text-blue-600"/>
+							}
 						</button>
 					</div>
 					<PasswordHelper visible={passwordFocused} />
@@ -170,7 +176,12 @@ export default function SignUp() {
 							onClick={() => setShowConfirmPassword((p) => !p)}
 							className="absolute inset-y-0 right-3 flex items-center text-slate-500 hover:text-slate-700"
 						>
-							{showConfirmPassword ? "🙈" : "👁"}
+							{
+								showPassword ? 
+								<Eye />
+								   : 
+								<EyeOff className="h-4 text-blue-600"/>
+							}
 						</button>
 					</div>
 
