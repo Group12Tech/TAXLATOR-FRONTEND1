@@ -12,8 +12,8 @@ export default function EditProfileModal({ open, onClose }: Props) {
   
   const {user} = useAuth();
    
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
+  const [email, setEmail] = useState(user?.email);
+  const [name, setName] = useState(`${user?.lastName + " " + user?.firstName}`);
 
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [feedbackType, setFeedbackType] = useState<"success" | "error">(
@@ -47,7 +47,7 @@ export default function EditProfileModal({ open, onClose }: Props) {
             <label className="text-sm text-slate-600">Full Name</label>
             <input
               className="w-full border rounded px-3 py-2 mt-1"
-              value={`${user?.lastName + " " + user?.firstName}`}
+              value={name}
               onChange={(e) => setName(e.target.value)}
             />
           </div>
@@ -56,7 +56,7 @@ export default function EditProfileModal({ open, onClose }: Props) {
             <label className="text-sm text-slate-600">Email Address</label>
             <input
               className="w-full border rounded px-3 py-2 mt-1"
-              value={user?.email}
+              value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>

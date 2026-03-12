@@ -2,29 +2,28 @@
 // taxlator/src/components/Footer.tsx
 // =============================
 
-// =============================
 import {
 	FaFacebookF,
 	FaInstagram,
-	FaLinkedinIn,
+	FaLinkedinIn, 
 	FaXTwitter,
 } from "react-icons/fa6";
 import { FaApple, FaAndroid } from "react-icons/fa";
-// =============================
+
 
 // ============================= FOOTER COMPONENT =============================
 export default function Footer() {
 	return (
-		<footer className="bg-white border-t font-bold w-full shrink-0 py-6 min-h-[200px]">
+		<footer className="bg-white border-t font-bold overflow-x-hidden shrink-0 py-6 ">
 			<div className="max-w-6xl mx-auto px-4">
-				<div className="flex flex-col lg:flex-row lg:justify-between gap-8">
+				<div className="grid sm:grid-cols-2 p-8 md:grid-cols-5">
 					{/* ========================== Copyright ========================== */}
 					<div className="text-sm text-slate-600 flex-shrink-0">
 						<p>© {new Date().getFullYear()} Taxlator.</p>
 					</div>
 
 					{/* ========================== About ========================== */}
-					<div className="space-y-2 text-sm text-slate-700 flex-shrink-0">
+					<div className="space-y-2 text-sm text-slate-700 mt-8 sm:mt-0 flex-shrink-0">
 						<a href="/about" className="block hover:text-brand-700">
 							About Us
 						</a>
@@ -50,7 +49,7 @@ export default function Footer() {
 					</div>
 
 					{/*========================== Social ========================== */}
-					<div className="flex flex-col flex-shrink-0">
+					<div className="flex flex-col flex-shrink-0 mt-8 md:mt-0">
 						<p className="mb-2 text-sm font-medium text-slate-800">
 							Follow Us:
 						</p>
@@ -63,7 +62,7 @@ export default function Footer() {
 					</div>
 
 					{/* ========================== Mobile App ========================== */}
-					<div className="flex flex-col flex-shrink-0">
+					<div className="flex flex-col flex-shrink-0 mt-8 md:mt-0">
 						<p className="mb-2 text-sm font-medium text-slate-800">
 							Mobile App:
 						</p>

@@ -51,13 +51,14 @@ function NavItem({
 export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { authenticated, signout, loading } = useAuth();
+  const { authenticated, signout, loading, user } = useAuth();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [editProfileOpen, setEditProfileOpen] = useState(false);
 
   const [openCalc, setOpenCalc] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+
 
   if (loading) return null;
 
@@ -162,7 +163,7 @@ export default function Navbar() {
                   className="flex items-center gap-2 px-3 py-2 rounded border text-sm hover:bg-slate-50"
                 >
                   <User className="w-4 h-4" />
-                  Account
+                   {user?.firstName}
                   <ChevronDown className="w-4 h-4" />
                 </button>
 
