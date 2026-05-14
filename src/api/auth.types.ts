@@ -4,8 +4,7 @@
 
 // ------------------------------ AUTH PAYLOADS ------------------------------
 export interface SignUpPayload {
-	firstName: string;
-	lastName: string;
+	fullName: string;
 	email: string;
 	password: string;
 	confirmPassword: string;

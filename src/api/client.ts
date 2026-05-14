@@ -5,6 +5,13 @@
 import axios from "axios";
 import type { AnyJson } from "../api/api.types";
 
+export const apiClient = axios.create({
+	baseURL: "https://taxlator-backend-1dgf.onrender.com",
+	headers: {
+		"Content-Type": "application/json",
+	},
+});
+
 // =============================== API BASE CONFIGURATION ===============================
 export const API_BASE = import.meta.env.VITE_API_BASE_URL as string;
 
@@ -33,6 +40,16 @@ api.interceptors.request.use((config) => {
 		);
 	}
 	return config;
+});
+
+//================================ ATTACH TOKEN==============================
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+
+  if (token){
+	config.headers.Authorization ='Bearer ${token}';
+  }
+  return config;
 });
 
 // =============================== OPTIONAL TOKEN EXTRACTION ===============================

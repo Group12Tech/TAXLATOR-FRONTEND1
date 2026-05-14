@@ -5,7 +5,9 @@
 // ===============================
 import { lazy } from "react";
 import { Route } from "react-router-dom";
-import RequireAuth from "../state/RequireAuth";
+import {RequireAuth} from "../state/RequireAuth";
+import PayeCalculator from "../pages/otherPages/PayeCalculator";
+
 // ===============================
 
 // =============================== LAZY LOAD PROTECTED PAGES ===============================
@@ -22,6 +24,7 @@ const ProtectedRoutes = [
 			</RequireAuth>
 		}
 	/>,
+	
 ];
 // ===============================
 
