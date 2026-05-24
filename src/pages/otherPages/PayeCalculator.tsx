@@ -10,7 +10,7 @@ export default function PayeCalculator() {
 
 	const [error, setError] = useState("");
 
-	const [result, setResult] = useState<any>(null);
+	const [result, setResult] = useState(null);
 
 	const onCalculate = async () => {
 		setLoading(true);
@@ -28,7 +28,7 @@ export default function PayeCalculator() {
 
 			console.log(response);
 
-			setResult(response.data);
+			setResult(response);
 		} catch (err) {
 			if (err instanceof AxiosError) {
 				setError(

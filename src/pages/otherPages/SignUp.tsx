@@ -20,8 +20,7 @@ export default function SignUp() {
 	const location = useLocation();
 
 	// ------------------ Form state ------------------
-	const [firstName, setFirstName] = useState("");
-	const [lastName, setLastName] = useState("");
+	const [fullName, setFullName] = useState("");
 	const [email, setEmail] = useState(
 		(location.state as { email?: string })?.email ?? "",
 	);
@@ -35,7 +34,7 @@ export default function SignUp() {
 	const [passwordFocused, setPasswordFocused] = useState(false);
 
 	// ------------------ Form validation ------------------
-	const hasNames = firstName.trim().length > 0 && lastName.trim().length > 0;
+	const hasNames = fullName.trim().length > 0;
 	const hasValidPassword = password.length >= 8 && password === confirmPassword;
 	const isFormValid =
 		hasNames && email.trim().length > 0 && hasValidPassword && agree && !busy;
@@ -53,7 +52,7 @@ export default function SignUp() {
 		setBusy(true);
 		try {
 			// ✅ Signup via AuthProvider
-			await signup({ firstName, lastName, email, password, confirmPassword });
+			await signup({ fullName, email, password, confirmPassword });
 
 			// ✅ Redirect to email verification page with pre-filled email
 			navigate("/verify-email", { state: { email } });
@@ -94,24 +93,13 @@ export default function SignUp() {
 
 					{/* First & Last Name */}
 					<label className="text-xs font-semibold text-slate-700 mb-1 block">
-						First Name
+						Full Name
 					</label>
 					<input
 						className={inputStyles.inputBase}
-						value={firstName}
-						onChange={(e) => setFirstName(e.target.value)}
+						value={fullName}
+						onChange={(e) => setFullName(e.target.value)}
 						placeholder="Enter your first name"
-						required
-					/>
-
-					<label className="text-xs font-semibold text-slate-700 mt-4 mb-1 block">
-						Last Name
-					</label>
-					<input
-						className={inputStyles.inputBase}
-						value={lastName}
-						onChange={(e) => setLastName(e.target.value)}
-						placeholder="Enter your last name"
 						required
 					/>
 
