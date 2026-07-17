@@ -8,7 +8,7 @@ export const ENDPOINTS = {
 	verifyEmail: "/api/auth/verify-email",
 	signin: "/api/auth/signin",
 	checkEmail: "/api/auth/check-email",
-	me: "/api/auth/me",
+	me: "/api/auth/profile",
 	changePassword: "/api/auth/change-password",
 	forgotPassword: "/api/auth/forgot-password",
 	resetPassword: "/api/auth/reset-password",

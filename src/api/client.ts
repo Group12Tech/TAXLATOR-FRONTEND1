@@ -3,58 +3,27 @@
 // ===============================
 
 import axios from "axios";
-import type { AnyJson } from "../api/api.types";
 
-export const apiClient = axios.create({
-	baseURL: "https://taxlator-backend-1dgf.onrender.com",
-	headers: {
-		"Content-Type": "application/json",
-	},
-});
+export const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
-// =============================== API BASE CONFIGURATION ===============================
-export const API_BASE = import.meta.env.VITE_API_BASE_URL as string;
-
-if (!API_BASE) {
-	throw new Error("❌ VITE_API_BASE_URL is not defined");
-}
-
-console.log("✅ Using API_BASE =", API_BASE);
-
-// =============================== AXIOS INSTANCE ===============================
 export const api = axios.create({
-	baseURL: API_BASE,
-	headers: { "Content-Type": "application/json" },
-	withCredentials: true, // ✅ send HttpOnly cookies automatically
+    baseURL: API_BASE,
+    headers: {
+        "Content-Type": "application/json",
+    },
+    withCredentials: true,
 });
 
-// =============================== REQUEST LOGGING ===============================
 api.interceptors.request.use((config) => {
-	if (config.url) {
-		console.log(
-			"API request:",
-			config.method?.toUpperCase(),
-			`${API_BASE}${config.url}`,
-			"payload:",
-			config.data || config.params || {},
-		);
-	}
-	return config;
-});
+    const token = localStorage.getItem("token");
 
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+});
 //================================ ATTACH TOKEN==============================
-apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-
-  if (token){
-	config.headers.Authorization ='Bearer ${token}';
-  }
-  return config;
-});
 
 // =============================== OPTIONAL TOKEN EXTRACTION ===============================
-// Only needed if backend ever returns a token in JSON for non-cookie scenarios
-export function extractToken(data: AnyJson): string | null {
-	const token = (data as { token?: string })?.token;
-	return typeof token === "string" && token.length > 10 ? token : null;
-}
+

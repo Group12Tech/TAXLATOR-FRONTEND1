@@ -1,7 +1,6 @@
 // src/api/types/auth.types.ts
 
 // -----------------------------------------------------------
-
 // ------------------------------ AUTH PAYLOADS ------------------------------
 export interface SignUpPayload {
 	fullName: string;
@@ -23,3 +22,4 @@ export interface User {
 	createdAt: string;
 	updatedAt: string;
 }
+

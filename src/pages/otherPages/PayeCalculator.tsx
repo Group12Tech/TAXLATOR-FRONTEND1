@@ -1,8 +1,13 @@
+
 import { useState } from "react";
 import { calculatePayePit } from "../../api/tax";
 import { AxiosError } from "axios";
+import { useAuth } from "../../state/useAuth";
+
+
 
 export default function PayeCalculator() {
+	const { user } = useAuth();
 	const [grossAnnualIncome, setGrossAnnualIncome] =
 		useState("");
 
@@ -10,39 +15,56 @@ export default function PayeCalculator() {
 
 	const [error, setError] = useState("");
 
-	const [result, setResult] = useState(null);
+	const [result, setResult] =
+    useState<Record<string, unknown> | null>(null);
 
 	const onCalculate = async () => {
-		setLoading(true);
-		setError("");
 
-		try {
-			const response = await calculatePayePit({
-				grossAnnualIncome: Number(grossAnnualIncome),
-				payePitPensionContribution: true,
-				nationalHealthInsuranceScheme: false,
-				nationalHousingFund: false,
-				rentRelief: 0,
-				otherDeductions: 0,
-			});
+    const income = Number(grossAnnualIncome);
 
-			console.log(response);
+    if (isNaN(income) || income <= 0) {
+        setError("Please enter a valid annual income.");
+        return;
+    }
 
-			setResult(response);
-		} catch (err) {
-			if (err instanceof AxiosError) {
-				setError(
-					err.response?.data?.message ||
-						"Calculation failed",
-				);
-			} else {
-				setError("Calculation failed");
-			}
-		} finally {
-			setLoading(false);
-		}
-	};
+    setLoading(true);
+    setError("");
+    setResult(null);
 
+    try {
+		
+
+        const response = await calculatePayePit(
+            {
+                grossAnnualIncome: income,
+                payePitPensionContribution: true,
+                nationalHealthInsuranceScheme: false,
+                nationalHousingFund: false,
+                rentRelief: 0,
+                otherDeductions: 0,
+            },
+            !!user
+        );
+
+        console.log(response);
+
+        setResult(response);
+
+    } catch (err) {
+
+        if (err instanceof AxiosError) {
+            setError(
+                err.response?.data?.message ??
+                "Calculation failed"
+            );
+        } else {
+            setError("Calculation failed");
+        }
+
+    } finally {
+        setLoading(false);
+    }
+};
 	return (
 		<div className="min-h-screen bg-slate-100 p-6">
 			<div className="max-w-xl mx-auto bg-white rounded-xl shadow p-6">

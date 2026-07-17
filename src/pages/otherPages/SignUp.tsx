@@ -42,8 +42,27 @@ export default function SignUp() {
 	// ------------------ Form submission ------------------
 	const onSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
+		console.log("🔥 Form Submitted");
 		setError("");
 
+		if (!fullName.trim()) {
+    setError("Full name is required.");
+    return;
+}
+
+if (!email.trim()) {
+    setError("Email is required.");
+    return;
+}
+
+if (password.length < 8) {
+    setError("Password must be at least 8 characters.");
+    return;
+}
+if (password !== confirmPassword) {
+    setError("Passwords do not match");
+    return;
+}
 		if (!agree) {
 			setError("You must agree to the Terms and Privacy Policy");
 			return;
@@ -58,7 +77,12 @@ export default function SignUp() {
 			navigate("/verify-email", { state: { email } });
 		} catch (err: unknown) {
 			if (err instanceof AxiosError) {
-				setError(err.response?.data?.message || "Signup failed");
+				const message =
+    err.response?.data?.message ||
+    err.response?.data?.error ||
+    "Signup failed";
+
+setError(message);
 			} else if (err instanceof Error) {
 				setError(err.message);
 			} else {
@@ -69,6 +93,16 @@ export default function SignUp() {
 		}
 	};
 
+console.log({
+    fullName,
+    email,
+    password,
+    confirmPassword,
+    agree,
+    hasValidPassword,
+    isFormValid,
+    busy,
+});
 	// ------------------ JSX ------------------
 	return (
 		<div className="bg-slate-200 min-h-[80vh] w-full flex items-center justify-center px-4 py-10">
@@ -201,7 +235,7 @@ export default function SignUp() {
 
 					{/* Submit button */}
 					<MotionButton className="mt-7 w-full">
-						<FormButton enabled={isFormValid} loading={busy}>
+						<FormButton enabled={true} loading={busy}>
 							{busy ? "Creating..." : "Sign Up"}
 						</FormButton>
 					</MotionButton>

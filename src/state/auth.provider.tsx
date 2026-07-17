@@ -52,13 +52,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 				return data;
 			},
 
-			async signin(payload: SignInPayload) {
-				const { data } = await api.post(ENDPOINTS.signin, payload, {
-					withCredentials: true,
-				});
-				await refresh();
-				return data;
-			},
+	async signin(payload: SignInPayload) {
+    const { data } = await api.post(
+        ENDPOINTS.signin,
+        payload,
+        { withCredentials: true }
+    );
+console.log("Login Response:", data);
+
+
+    if (data?.token) {
+        localStorage.setItem("token", data.token);
+    }
+
+    await refresh();
+
+    return data;
+},
 
 			async verifyEmail(payload: { email: string; code: string }) {
 				const { data } = await api.post(ENDPOINTS.verifyEmail, payload, {
@@ -85,13 +95,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 					console.warn("Signout request failed:", err);
 				} finally {
 					setUser(null);
+					localStorage.removeItem("token");
 					window.location.href = "/signin";
 				}
 			},
 
 			logout() {
 				setUser(null);
-				localStorage.removeItem("taxlator_token");
+			 localStorage.removeItem("token");
 				window.location.href = "/signin";
 			},
 
