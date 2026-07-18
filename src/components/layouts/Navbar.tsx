@@ -1,5 +1,5 @@
 
-import TaxlatorLogo from "src/assets/landingPage/TAX_LOGOs.png";
+
 import React, { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import CalculateModal from "../../components/ui/modals/CalculateModal";
@@ -107,8 +107,8 @@ if (loading) return null;
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center">
           {/* ======================= LEFT: Logo ======================= */}
           <Link to="/" className="flex items-center gap-2 shrink-0">
-           <img
-    src={TaxlatorLogo}
+       				<img
+    src="/TAX_LOGO.png"
     alt="Taxlator Logo"
     className="h-11 w-auto"
 />
