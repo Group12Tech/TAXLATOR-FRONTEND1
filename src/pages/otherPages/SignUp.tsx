@@ -3,7 +3,7 @@
 // ----------------------------------------------
 // SignUp page component: handles user registration, password validation, and redirects to email verification.
 // ----------------------------------------------
-import TaxlatorLogo from "../../assets/images/TAX_LOGOs.png";
+import TaxlatorLogo from "src/assets/landingPage/TAX_LOGOs.png";
 import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../state/useAuth";

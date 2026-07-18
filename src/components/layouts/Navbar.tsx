@@ -1,5 +1,5 @@
 
-import TaxlatorLogo from "../../assets/images/TAX_LOGOs.png";
+import TaxlatorLogo from "src/assets/landingPage/TAX_LOGOs.png";
 import React, { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import CalculateModal from "../../components/ui/modals/CalculateModal";
