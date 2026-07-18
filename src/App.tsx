@@ -2,7 +2,7 @@
 // src/App.tsx
 // ===============================
 
-import TaxlatorLogo from "./assets/images/TAX_LOGOs.png";
+import TaxlatorLogo from "@/assets/images/TAX_LOGOs.png";
 import Shell from "./components/layouts/Shell";
 import { useAuth } from "./state/useAuth";
 import AppRoutes from "./routes";
