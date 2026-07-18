@@ -3,6 +3,7 @@
 // ====================================
 
 // ====================================
+import TaxlatorLogo from "../../assets/images/TAX_LOGOs.png";
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../state/useAuth";
@@ -93,9 +94,11 @@ export default function SignIn() {
 		<div className="bg-slate-200 min-h-[80vh] w-full flex items-center justify-center px-4 py-10">
 			<div className="w-full max-w-md bg-white rounded-2xl border shadow-soft overflow-hidden">
 				<div className="p-6 text-center">
-					<div className="w-12 h-12 mx-auto rounded bg-brand-700 text-white grid place-items-center font-bold">
-						T
-					</div>
+					<img
+    src={TaxlatorLogo}
+    alt="Taxlator Logo"
+    className="h-11 w-auto"
+/>
 					<div className="mt-3 text-lg font-semibold">Welcome back!</div>
 					<div className="text-xs text-slate-500">Sign in to your account</div>
 				</div>

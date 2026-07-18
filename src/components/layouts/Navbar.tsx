@@ -1,4 +1,5 @@
 
+import TaxlatorLogo from "../../assets/images/TAX_LOGOs.png";
 import React, { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import CalculateModal from "../../components/ui/modals/CalculateModal";
@@ -60,7 +61,7 @@ export default function Navbar() {
   const [profileOpen, setProfileOpen] = useState(false);
 
 
-  if (loading) return null;
+  
 
   const isCalculateActive = location.pathname.startsWith("/calculate");
 
@@ -99,16 +100,18 @@ export default function Navbar() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
+if (loading) return null;
   return (
     <>
       <header className="bg-white border-b w-full">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center">
           {/* ======================= LEFT: Logo ======================= */}
           <Link to="/" className="flex items-center gap-2 shrink-0">
-            <div className="w-9 h-9 rounded bg-brand-700 text-white grid place-items-center font-bold">
-              T
-            </div>
+           <img
+    src={TaxlatorLogo}
+    alt="Taxlator Logo"
+    className="h-11 w-auto"
+/>
             <div className="leading-tight">
               <div className="text-sm font-semibold">TAXLATOR</div>
               <div className="text-[11px] text-slate-500 -mt-0.5">
@@ -163,7 +166,7 @@ export default function Navbar() {
                   className="flex items-center gap-2 px-3 py-2 rounded border text-sm hover:bg-slate-50"
                 >
                   <User className="w-4 h-4" />
-                   {user?.firstName}
+                   {user?.fullName}
                   <ChevronDown className="w-4 h-4" />
                 </button>
 

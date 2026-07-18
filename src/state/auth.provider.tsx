@@ -14,7 +14,7 @@ import type { User, SignUpPayload, SignInPayload } from "../api/auth.types";
 // ==================================== AUTH PROVIDER COMPONENT ====================================
 export function AuthProvider({ children }: { children: React.ReactNode }) {
 	const [user, setUser] = useState<User | null>(null);
-	const [loading, setLoading] = useState(true);
+	const [loading, setLoading] = useState(false);
 	const [refreshing, setRefreshing] = useState(false);
 
 	// ==================================== REFRESH USER DATA FUNCTION ====================================
