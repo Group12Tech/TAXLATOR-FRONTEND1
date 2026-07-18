@@ -107,18 +107,24 @@ console.log({
 	// ------------------ JSX ------------------
 	return (
 		<div className="bg-slate-200 min-h-[80vh] w-full flex items-center justify-center px-4 py-10">
-			<div className="w-full max-w-md bg-white rounded-2xl border shadow-soft overflow-hidden">
-				<div className="p-6 text-center">
-				<img
-    src="/TAX_LOGO.png"
-    alt="Taxlator Logo"
-    className="h-11 w-auto"
-/>
-					<div className="mt-3 text-lg font-semibold">Sign Up</div>
-					<div className="text-xs text-slate-500">
-						Create your free Taxlator account
-					</div>
-				</div>
+			<div className="w-full max-w-lg bg-white rounded-2xl border shadow-soft overflow-hidden">
+			<div className="p-6 flex items-center justify-center gap-3">
+	<img
+		src="/TAX_LOGO.png"
+		alt="Taxlator Logo"
+		className="h-12 w-auto"
+	/>
+
+	<div className="text-left">
+		<div className="text-lg font-semibold">
+			Sign Up
+		</div>
+
+		<div className="text-xs text-slate-500">
+			Create your free Taxlator account
+		</div>
+	</div>
+</div>
 
 				<form className="p-5 overflow-x-hidden" onSubmit={onSubmit}>
 					{/* Error message */}
