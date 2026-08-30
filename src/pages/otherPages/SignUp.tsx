@@ -72,7 +72,13 @@ if (password !== confirmPassword) {
 		setBusy(true);
 		try {
 			// ✅ Signup via AuthProvider
-			await signup({ fullName, email, password, confirmPassword });
+			await signup({
+					fullName,
+					email,
+					password,
+					confirmPassword,
+					redirectUrl: `${window.location.origin}/calculate`,
+				});
 
 			// ✅ Redirect to email verification page with pre-filled email
 			navigate("/verify-email", { state: { email } });

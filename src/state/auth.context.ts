@@ -13,8 +13,7 @@ export type AuthContextValue = {
 
 	signin: (payload: SignInPayload) => Promise<AnyJson>;
 	signup: (payload: SignUpPayload) => Promise<AnyJson>;
-	verifyEmail: (payload: { email: string; code: string }) => Promise<AnyJson>;
-	sendVerificationCode: (payload: { email: string }) => Promise<AnyJson>;
+	sendVerificationLink: (payload: { email: string; redirectUrl?: string }) => Promise<AnyJson>;
 	signout: () => Promise<void>;
 	logout: () => void;
 

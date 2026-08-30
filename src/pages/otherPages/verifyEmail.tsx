@@ -1,104 +1,51 @@
-// src/pages/otherPages/VerifyEmail.tsx
+// src/pages/otherPages/verifyEmail.tsx
 
-// ----------------------------------------------
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../../state/useAuth";
+import React, { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { api } from "../../api/client";
 import { ENDPOINTS } from "../../api/endpoints";
 
-// ------------------------------------ Verify Email Page ------------------------------------
 type VerifyState = { email?: string };
 type ApiResponse = { success?: boolean; message?: string };
 
-function isEmail(v: string) {
-	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+function isEmail(value: string) {
+	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
-function getErrorMessage(err: unknown) {
-	return err instanceof Error
-		? err.message
+function getErrorMessage(error: unknown) {
+	return error instanceof Error
+		? error.message
 		: "Network error. Please try again.";
 }
 
+/**
+ * Email verification is link-based.
+ *
+ * The backend sends the actual confirmation link and verifies the token when
+ * the user clicks that link. This page only tells the user to check their
+ * inbox and provides a way to resend the link.
+ */
 export default function VerifyEmail() {
-	const navigate = useNavigate();
 	const location = useLocation();
 	const state = (location.state as VerifyState) || {};
 
-	const auth = useAuth(); // ✅ access auth context
-
 	const [email, setEmail] = useState(state.email || "");
-	const [digits, setDigits] = useState<string[]>(["", "", "", "", "", ""]);
-	const [loading, setLoading] = useState(false);
 	const [resending, setResending] = useState(false);
 	const [cooldown, setCooldown] = useState(0);
 	const [error, setError] = useState("");
 	const [info, setInfo] = useState("");
 
-	const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
-	const code = useMemo(() => digits.join(""), [digits]);
-
-	// Redirect immediately if user is already signed in
-	useEffect(() => {
-		if (auth.user) navigate("/calculate", { replace: true });
-	}, [auth.user, navigate]);
-
-	// Cooldown timer for resending
 	useEffect(() => {
 		if (!cooldown) return;
-		const t = setInterval(() => setCooldown((s) => (s > 0 ? s - 1 : 0)), 1000);
-		return () => clearInterval(t);
+
+		const timer = window.setInterval(() => {
+			setCooldown((seconds) => (seconds > 0 ? seconds - 1 : 0));
+		}, 1000);
+
+		return () => window.clearInterval(timer);
 	}, [cooldown]);
 
-	// ---------------------- Digit input handlers ----------------------
-	const setDigitAt = (idx: number, val: string) => {
-		const onlyDigit = (val || "").replace(/\D/g, "").slice(-1);
-		setDigits((prev) => {
-			const next = [...prev];
-			next[idx] = onlyDigit;
-			return next;
-		});
-	};
-
-	const onChange = (idx: number, val: string) => {
-		setError("");
-		setInfo("");
-		setDigitAt(idx, val);
-		const nextVal = (val || "").replace(/\D/g, "");
-		if (nextVal && idx < 5) inputsRef.current[idx + 1]?.focus();
-	};
-
-	const onKeyDown = (idx: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-		if (e.key === "Backspace") {
-			if (digits[idx]) {
-				setDigitAt(idx, "");
-				return;
-			}
-			if (idx > 0) inputsRef.current[idx - 1]?.focus();
-		}
-		if (e.key === "ArrowLeft" && idx > 0) inputsRef.current[idx - 1]?.focus();
-		if (e.key === "ArrowRight" && idx < 5) inputsRef.current[idx + 1]?.focus();
-	};
-
-	const onPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
-		const pasted = e.clipboardData.getData("text") || "";
-		const nums = pasted.replace(/\D/g, "").slice(0, 6).split("");
-		if (!nums.length) return;
-
-		e.preventDefault();
-		setError("");
-		setInfo("");
-		setDigits((prev) => {
-			const next = [...prev];
-			for (let i = 0; i < 6; i++) next[i] = nums[i] || "";
-			return next;
-		});
-		inputsRef.current[Math.min(nums.length, 6) - 1]?.focus();
-	};
-
-	// ------------------------------ Handlers -----------------------------
-	const verify = async () => {
+	const resendVerificationLink = async () => {
 		setError("");
 		setInfo("");
 
@@ -108,75 +55,38 @@ export default function VerifyEmail() {
 			setError("Enter a valid email address.");
 			return;
 		}
-		if (digits.some((d) => !d) || code.length !== 6) {
-			setError("Enter the 6-digit code.");
-			return;
-		}
 
-		setLoading(true);
-		try {
-			const { data } = await api.post<ApiResponse>(ENDPOINTS.verifyEmail, {
-				email: normalizedEmail,
-				code,
-			});
-
-			if (!data.success) {
-				setError(data.message || "Verification failed.");
-				return;
-			}
-
-			// Auto-refresh user after verification
-			await auth.refresh();
-
-			// ✅ Show success message
-			setInfo(data.message || "Email verified successfully! Redirecting...");
-
-			// ✅ Pause for 2 seconds before redirecting
-			setTimeout(() => {
-				navigate("/calculate", { replace: true });
-			}, 2000); // 2000ms = 2 seconds
-		} catch (e: unknown) {
-			setError(getErrorMessage(e));
-		} finally {
-			setLoading(false);
-		}
-	};
-
-	const resend = async () => {
-		setError("");
-		setInfo("");
-
-		const normalizedEmail = email.trim().toLowerCase();
-		if (!isEmail(normalizedEmail)) {
-			setError("Enter a valid email address.");
-			return;
-		}
-		if (cooldown > 0) return;
+		if (cooldown > 0 || resending) return;
 
 		setResending(true);
+
 		try {
 			const { data } = await api.post<ApiResponse>(
-				ENDPOINTS.sendVerificationCode,
+				ENDPOINTS.sendVerificationLink,
 				{
 					email: normalizedEmail,
+					// Tell the backend where to send the user after the link is used.
+					redirectUrl: `${window.location.origin}/calculate`,
 				},
 			);
 
 			if (!data.success) {
-				setError(data.message || "Could not resend code.");
+				setError(data.message || "Could not resend the confirmation link.");
 				return;
 			}
 
-			setInfo(data.message || "Verification code sent.");
+			setInfo(
+				data.message ||
+					"A new confirmation link has been sent to your email.",
+			);
 			setCooldown(60);
-		} catch (e: unknown) {
-			setError(getErrorMessage(e));
+		} catch (error: unknown) {
+			setError(getErrorMessage(error));
 		} finally {
 			setResending(false);
 		}
 	};
 
-	// ------------------------------ JSX -----------------------------
 	return (
 		<div className="bg-slate-200 min-h-[80vh] flex items-center justify-center px-4 py-10">
 			<div className="w-full max-w-md bg-white rounded-2xl border shadow-soft overflow-hidden">
@@ -184,85 +94,68 @@ export default function VerifyEmail() {
 					<div className="w-12 h-12 mx-auto rounded bg-brand-700 text-white grid place-items-center font-bold">
 						T
 					</div>
-					<div className="mt-3 text-lg font-semibold">Verify your email</div>
-					<div className="text-xs text-slate-600">
-						Enter the 6-digit code sent to your inbox
+
+					<div className="mt-4 text-lg font-semibold text-slate-900">
+						Check your email
+					</div>
+
+					<div className="mt-2 text-sm text-slate-600 leading-6">
+						We&apos;ve sent a verification link to your email address.
+						Click the <strong>Confirm My Email</strong> button in the email to
+						activate your Taxlator account.
 					</div>
 				</div>
 
-				<form
-					className="p-6"
-					onSubmit={(e) => {
-						e.preventDefault();
-						verify();
-					}}
-				>
+				<div className="p-6">
 					{error && (
-						<div className="mb-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded p-2">
+						<div className="mb-4 text-sm text-red-700 bg-red-50 border border-red-200 rounded p-3">
 							{error}
 						</div>
 					)}
+
 					{info && (
-						<div className="mb-3 text-sm text-green-800 bg-green-50 border border-green-200 rounded p-2">
+						<div className="mb-4 text-sm text-green-800 bg-green-50 border border-green-200 rounded p-3">
 							{info}
 						</div>
 					)}
 
-					<label className="text-xs font-semibold text-slate-700">Email</label>
+					<label className="text-xs font-semibold text-slate-700">
+						Email address
+					</label>
+
 					<input
-						className="mt-1 w-full rounded border px-3 py-2 text-sm"
+						className="mt-1 w-full rounded border px-3 py-2.5 text-sm"
 						value={email}
-						onChange={(e) => setEmail(e.target.value)}
+						onChange={(event) => {
+							setEmail(event.target.value);
+							setError("");
+							setInfo("");
+						}}
 						placeholder="Enter your email"
+						type="email"
+						autoComplete="email"
 						required
 					/>
 
-					<label className="text-xs font-semibold text-slate-700 mt-4 block">
-						Verification Code
-					</label>
-					<div className="mt-2 flex items-center justify-between gap-2">
-						{digits.map((d, idx) => (
-							<input
-								key={idx}
-								ref={(el) => {
-									inputsRef.current[idx] = el;
-								}}
-								className="w-12 h-12 rounded border text-center text-lg font-semibold tracking-widest"
-								value={d}
-								onChange={(e) => onChange(idx, e.target.value)}
-								onKeyDown={(e) => onKeyDown(idx, e)}
-								onPaste={idx === 0 ? onPaste : undefined}
-								inputMode="numeric"
-								autoComplete={idx === 0 ? "one-time-code" : "off"}
-								maxLength={1}
-								aria-label={`Digit ${idx + 1}`}
-							/>
-						))}
-					</div>
-
-					<button
-						type="submit"
-						disabled={loading}
-						className="mt-5 w-full rounded bg-brand-800 text-white py-2.5 text-sm font-semibold hover:bg-brand-900 disabled:opacity-60"
-					>
-						{loading ? "Verifying..." : "Verify Email"}
-					</button>
-
 					<button
 						type="button"
-						onClick={resend}
+						onClick={resendVerificationLink}
 						disabled={resending || cooldown > 0}
-						className="mt-3 w-full rounded border py-2.5 text-sm font-semibold hover:bg-slate-50 disabled:opacity-60"
+						className="mt-5 w-full rounded bg-brand-800 text-white py-2.5 text-sm font-semibold hover:bg-brand-900 disabled:opacity-60"
 					>
 						{resending
-							? "Sending..."
+							? "Sending link..."
 							: cooldown > 0
-								? `Resend code (${cooldown}s)`
-								: "Resend code"}
+								? `Resend link (${cooldown}s)`
+								: "Resend confirmation link"}
 					</button>
 
-					{/* ------------------- SMALL INPRINT MESSAGE AT THE BOTTOM------------------- */}
-					<div className="mt-2 text-xs text-slate-600 text-center">
+					<div className="mt-4 text-xs text-slate-500 text-center leading-5">
+						Didn&apos;t receive the email? Check your spam or junk folder, then
+						try resending the link.
+					</div>
+
+					<div className="mt-4 text-xs text-slate-600 text-center">
 						Wrong email?{" "}
 						<Link
 							className="text-brand-800 font-semibold hover:text-brand-900"
@@ -271,7 +164,7 @@ export default function VerifyEmail() {
 							Go back to sign up
 						</Link>
 					</div>
-				</form>
+				</div>
 			</div>
 		</div>
 	);

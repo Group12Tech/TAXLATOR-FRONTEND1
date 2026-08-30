@@ -70,17 +70,9 @@ console.log("Login Response:", data);
     return data;
 },
 
-			async verifyEmail(payload: { email: string; code: string }) {
-				const { data } = await api.post(ENDPOINTS.verifyEmail, payload, {
-					withCredentials: true,
-				});
-				await refresh();
-				return data;
-			},
-
-			async sendVerificationCode(payload: { email: string }) {
+			async sendVerificationLink(payload: { email: string; redirectUrl?: string }) {
 				const { data } = await api.post(
-					ENDPOINTS.sendVerificationCode,
+					ENDPOINTS.sendVerificationLink,
 					payload,
 					{ withCredentials: true },
 				);

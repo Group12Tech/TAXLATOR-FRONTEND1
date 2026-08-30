@@ -7,6 +7,7 @@ export interface SignUpPayload {
 	email: string;
 	password: string;
 	confirmPassword: string;
+	redirectUrl?: string;
 }
 
 export interface SignInPayload {

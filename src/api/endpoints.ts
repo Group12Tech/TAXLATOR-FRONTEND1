@@ -4,8 +4,7 @@
 export const ENDPOINTS = {
 	// ------------------------------ AUTH ------------------------------
 	signup: "/api/auth/signup",
-	sendVerificationCode: "/api/auth/send-code",
-	verifyEmail: "/api/auth/verify-email",
+	sendVerificationLink: "/api/auth/send-code",
 	signin: "/api/auth/signin",
 	checkEmail: "/api/auth/check-email",
 	me: "/api/auth/profile",
