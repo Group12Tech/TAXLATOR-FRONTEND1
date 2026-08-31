@@ -1,6 +1,6 @@
 // src/pages/otherPages/verifyEmail.tsx
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../state/useAuth";
 
