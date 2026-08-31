@@ -1,10 +1,14 @@
 // src/api/endpoints.ts
 
-// ==================== CENTRALIZED FRONTEND ENDPOINTS ===================
 export const ENDPOINTS = {
 	// ------------------------------ AUTH ------------------------------
 	signup: "/api/auth/signup",
-	sendVerificationLink: "/api/auth/send-code",
+
+	// NOTE:
+	// The backend route is still named /send-code,
+	// but it now sends a clickable email verification LINK.
+	sendVerificationCode: "/api/auth/send-code",
+
 	signin: "/api/auth/signin",
 	checkEmail: "/api/auth/check-email",
 	me: "/api/auth/profile",
@@ -14,23 +18,27 @@ export const ENDPOINTS = {
 	signout: "/api/auth/signout",
 
 	// ------------------------------ TAX ENDPOINTS ------------------------------
-	// ---------------------- PUBLIC ----------------------
-	taxCalculatePublic: (taxType: string) => `/api/tax/${taxType}/calculate`,
 
-	// ---------------------- PUBLIC SHORTCUT ----------------------
-	taxCalculate: (taxType: string) => `/api/tax/${taxType}/calculate`,
+	// Public
+	taxCalculatePublic: (taxType: string) =>
+		`/api/tax/${taxType}/calculate`,
 
-	// ---------------------- PRIVATE ----------------------
+	// Public shortcut
+	taxCalculate: (taxType: string) =>
+		`/api/tax/${taxType}/calculate`,
+
+	// Private
 	taxCalculatePrivate: (taxType: string) =>
 		`/api/tax/${taxType}/calculate/save`,
 
 	// ------------------------------ VAT ENDPOINTS ------------------------------
-	// ---------------------- PUBLIC ----------------------
+
+	// Public
 	vatCalculatePublic: "/api/vat/calculate",
 
-	// ---------------------- PUBLIC SHORTCUT ----------------------
+	// Public shortcut
 	vatCalculate: "/api/vat/calculate",
 
-	// ---------------------- PRIVATE ----------------------
+	// Private
 	vatCalculatePrivate: "/api/vat/calculate/save",
 };
