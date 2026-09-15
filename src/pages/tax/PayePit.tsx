@@ -12,6 +12,7 @@ import { useAuth } from "../../state/useAuth";
 import PayePitResultPanel from "./PayePitResultPanel";
 import CalculateButton from "../../components/ui/buttons/CalculateButton";
 import CurrencyInput from "../../components/ui/inputs/CurrencyInput";
+import KnownContributionField from "../../components/ui/inputs/KnownContributionField";
 import {
 	parseNumber,
 	formatNumber,
@@ -31,8 +32,20 @@ export default function PayePit() {
 
 	// ==================================== Form state
 	const [grossAnnualIncome, setGrossAnnualIncome] = useState("");
-	const [includeNhf, setIncludeNhf] = useState(false);
-	const [includeNhis, setIncludeNhis] = useState(false);
+
+	// Pension, NHIS, NHF each follow the same pattern:
+	// "known" = user knows their actual contribution amount.
+	// If known, the *Amount field is used; otherwise the statutory
+	// default percentage (8% / 5% / 2.5%) is applied by the backend.
+	const [pensionKnown, setPensionKnown] = useState(false);
+	const [pensionAmount, setPensionAmount] = useState("");
+
+	const [nhisKnown, setNhisKnown] = useState(false);
+	const [nhisAmount, setNhisAmount] = useState("");
+
+	const [nhfKnown, setNhfKnown] = useState(false);
+	const [nhfAmount, setNhfAmount] = useState("");
+
 	const [annualRent, setAnnualRent] = useState("");
 	const [otherDeductions, setOtherDeductions] = useState("");
 
@@ -54,6 +67,13 @@ export default function PayePit() {
 		[otherDeductions],
 	);
 
+	const pensionAmountNumber = useMemo(
+		() => parseNumber(pensionAmount),
+		[pensionAmount],
+	);
+	const nhisAmountNumber = useMemo(() => parseNumber(nhisAmount), [nhisAmount]);
+	const nhfAmountNumber = useMemo(() => parseNumber(nhfAmount), [nhfAmount]);
+
 	// ==================================== Calculation
 	async function calculate() {
 		setError("");
@@ -67,12 +87,29 @@ export default function PayePit() {
 
 		try {
 			// ==================================== Payload construction
+			// NOTE: field names for the *Amount values below are provisional —
+			// confirm exact contract with backend before merging.
 			const payload = {
 				taxType: "PAYE/PIT",
 				grossAnnualIncome: grossAnnualIncomeNumber,
-				payePitPensionContribution: true,
-				nationalHousingFund: includeNhf,
-				nationalHealthInsuranceScheme: includeNhis,
+
+				// Pension: send the actual amount if known, otherwise fall back
+				// to the statutory default (8%) on the backend.
+				payePitPensionContribution: !pensionKnown,
+				pensionContributionAmount: pensionKnown
+					? pensionAmountNumber
+					: undefined,
+
+				// NHIS: send the actual amount if known, otherwise fall back
+				// to the statutory default (5%) on the backend.
+				nationalHealthInsuranceScheme: !nhisKnown,
+				nhisContributionAmount: nhisKnown ? nhisAmountNumber : undefined,
+
+				// NHF: send the actual amount if known, otherwise fall back
+				// to the statutory default (2.5%) on the backend.
+				nationalHousingFund: !nhfKnown,
+				nhfContributionAmount: nhfKnown ? nhfAmountNumber : undefined,
+
 				rentRelief: rentNumber,
 				otherDeductions: otherDeductionsNumber,
 			};
@@ -140,47 +177,41 @@ export default function PayePit() {
 				onChange={(v) => setGrossAnnualIncome(onlyNumbers(v))}
 			/>
 
-			{/* ======================= Toggle deductions =======================  */}
-			<div className="mt-5 rounded-lg border border-brand-200 p-4">
-				<div className="text-xs font-medium text-slate-600">
-					Pension Contribution
-				</div>
-				<div className="mt-1 text-xs text-slate-600">8% deduction</div>
-			</div>
+			{/* ======================= Pension Contribution =======================  */}
+			<KnownContributionField
+				label="Pension Contribution"
+				defaultLabel="Default: 8% of gross income"
+				known={pensionKnown}
+				onKnownChange={setPensionKnown}
+				amount={pensionAmount}
+				onAmountChange={setPensionAmount}
+				formatAmount={formatNumber}
+				sanitizeAmount={onlyNumbers}
+			/>
 
-			{/* ==============================================  */}
+			{/* ======================= National Health Insurance Scheme =======================  */}
+			<KnownContributionField
+				label="National Health Insurance Scheme"
+				defaultLabel="Default: 5% of gross income"
+				known={nhisKnown}
+				onKnownChange={setNhisKnown}
+				amount={nhisAmount}
+				onAmountChange={setNhisAmount}
+				formatAmount={formatNumber}
+				sanitizeAmount={onlyNumbers}
+			/>
 
-			<div className="mt-3 flex justify-between rounded-lg border border-brand-200 p-4">
-				<div>
-					<div className="text-xs font-medium text-slate-600">
-						Include National Health Insurance Scheme
-					</div>
-					<div className="text-xs text-slate-500">5% deduction</div>
-				</div>
-				<input
-					type="checkbox"
-					className="h-4 w-4 accent-brand-800"
-					checked={includeNhis}
-					onChange={(e) => setIncludeNhis(e.target.checked)}
-				/>
-			</div>
-
-			{/* ==============================================  */}
-
-			<div className="mt-3 flex justify-between rounded-lg border border-brand-200 p-4">
-				<div>
-					<div className="text-xs font-medium text-slate-700">
-						Include National Housing Fund
-					</div>
-					<div className="text-xs text-slate-500">2.5% deduction</div>
-				</div>
-				<input
-					type="checkbox"
-					className="h-4 w-4 accent-brand-800"
-					checked={includeNhf}
-					onChange={(e) => setIncludeNhf(e.target.checked)}
-				/>
-			</div>
+			{/* ======================= National Housing Fund =======================  */}
+			<KnownContributionField
+				label="National Housing Fund"
+				defaultLabel="Default: 2.5% of gross income"
+				known={nhfKnown}
+				onKnownChange={setNhfKnown}
+				amount={nhfAmount}
+				onAmountChange={setNhfAmount}
+				formatAmount={formatNumber}
+				sanitizeAmount={onlyNumbers}
+			/>
 
 			{/* ======================= Rent relief =======================  */}
 			<CurrencyInput
