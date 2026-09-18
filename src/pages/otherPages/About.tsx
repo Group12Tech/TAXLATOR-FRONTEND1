@@ -208,8 +208,7 @@ export default function About() {
 						based on current Nigeria Tax Laws and Regulations including:
 						<ul className="mt-3 list-disc pl-5 space-y-1">
 							<li>8% pension deduction calculation</li>
-							<li>Consolidated Relief Allowance (CRA) computation</li>
-							<li>Progressive Tax Bands (7%, 11%, 15%, 19%, 21%, 24%)</li>
+							<li>Progressive Tax Bands (0%, 15%, 18%, 21%, 23%, 25%)</li>
 							<li>Monthly and Annual Tax Calculations</li>
 						</ul>
 					</Card>
