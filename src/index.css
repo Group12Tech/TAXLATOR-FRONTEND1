@@ -1,0 +1,47 @@
+/* ./src/index.css */
+
+/* ================= TAILWIND DIRECTIVES ================= */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ================= GLOBAL RESET ================= */
+
+@layer base {
+	* {
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
+		outline: none;
+		user-select: none;
+	}
+	html {
+		font-size: 16px;
+	}
+
+	body {
+		width: 100dvw;
+	}
+}
+
+/* ================= ROOT ================= */
+
+:root {
+	color-scheme: light;
+}
+
+body {
+	@apply bg-slate-50 text-slate-900;
+}
+
+/* ================= AUTOFILL FIX ================= */
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+	-webkit-box-shadow: 0 0 0px 1000px #f0f7ff inset;
+	-webkit-text-fill-color: #0f172a;
+	transition: background-color 5000s ease-in-out 0s;
+}
