@@ -14,6 +14,7 @@ import type {
 	User,
 	SignUpPayload,
 	SignInPayload,
+	VerifyEmailPayload,
 } from "../api/auth.types";
 
 export function AuthProvider({
@@ -84,21 +85,40 @@ export function AuthProvider({
 				return data;
 			},
 
-			/*
-			 * The backend endpoint is still called /send-code,
-			 * but the current backend sends a clickable verification LINK.
-			 */
-			async sendVerificationCode(payload: {
-				email: string;
-				redirectUrl?: string;
-			}) {
+			// Re-sends the 6-digit email OTP (web).
+			async resendOtp(payload: { email: string }) {
 				const { data } = await api.post(
-					ENDPOINTS.sendVerificationCode,
+					ENDPOINTS.resendOtp,
 					payload,
 					{
 						withCredentials: true,
 					},
 				);
+
+				return data;
+			},
+
+			async verifyEmail(payload: VerifyEmailPayload) {
+				const { data } = await api.post(
+					ENDPOINTS.verifyEmail,
+					payload,
+					{
+						withCredentials: true,
+					},
+				);
+
+				// Backend sets the JWT cookie on success (user is now logged in).
+				// Keep a token too if one is ever returned in the body.
+				if (data?.token) {
+					localStorage.setItem("token", data.token);
+				}
+
+				if (data?.user) {
+					setUser(data.user);
+				}
+
+				// Re-sync with /api/auth/profile using the new cookie.
+				await refresh();
 
 				return data;
 			},

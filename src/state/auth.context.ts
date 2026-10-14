@@ -1,7 +1,12 @@
 // src/state/auth.context.ts
 
 import { createContext } from "react";
-import type { SignInPayload, SignUpPayload, User } from "../api/auth.types";
+import type {
+	SignInPayload,
+	SignUpPayload,
+	User,
+	VerifyEmailPayload,
+} from "../api/auth.types";
 import type { AnyJson } from "../api/api.types";
 
 export type AuthContextValue = {
@@ -12,10 +17,8 @@ export type AuthContextValue = {
 	signin: (payload: SignInPayload) => Promise<AnyJson>;
 	signup: (payload: SignUpPayload) => Promise<AnyJson>;
 
-	sendVerificationCode: (payload: {
-		email: string;
-		redirectUrl?: string;
-	}) => Promise<AnyJson>;
+	resendOtp: (payload: { email: string }) => Promise<AnyJson>;
+	verifyEmail: (payload: VerifyEmailPayload) => Promise<AnyJson>;
 
 	signout: () => Promise<void>;
 	logout: () => void;

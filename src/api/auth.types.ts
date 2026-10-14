@@ -1,13 +1,18 @@
-// src/api/types/auth.types.ts
+// src/api/auth.types.ts
 
 // -----------------------------------------------------------
 // ------------------------------ AUTH PAYLOADS ------------------------------
 export interface SignUpPayload {
-	fullName: string;
+	firstName: string;
+	lastName: string;
 	email: string;
 	password: string;
 	confirmPassword: string;
-	redirectUrl?: string;
+}
+
+export interface VerifyEmailPayload {
+	email: string;
+	otp: string;
 }
 
 export interface SignInPayload {
@@ -19,8 +24,10 @@ export interface SignInPayload {
 export interface User {
 	id: string;
 	email: string;
-	fullName: string; 
+	firstName: string;
+	lastName: string;
+	/** Optional: only present if the backend still returns it. */
+	fullName?: string;
 	createdAt: string;
 	updatedAt: string;
 }
-

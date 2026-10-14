@@ -1,5 +1,3 @@
-
-
 import React, { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import CalculateModal from "../../components/ui/modals/CalculateModal";
@@ -167,7 +165,7 @@ if (loading) return null;
                 >
                   <User className="w-4 h-4" />
                    <span>
-Hi, {user?.fullName?.split(" ")[0] || "User"}
+Hi, {user?.firstName || user?.fullName?.split(" ")[0] || "User"}
 </span>
                   <ChevronDown className="w-4 h-4" />
                 </button>

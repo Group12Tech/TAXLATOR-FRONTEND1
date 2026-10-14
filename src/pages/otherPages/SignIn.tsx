@@ -39,7 +39,7 @@ export default function SignIn() {
 	const location = useLocation();
 
 	useEffect(() => {
-		if (user) navigate("/dashboard", { replace: true });
+		if (user) navigate("/calculate", { replace: true });
 		console.log(user, "user data here")
 	}, [user, navigate]);
 
@@ -74,7 +74,7 @@ export default function SignIn() {
 			}
 			console.log(data)
 			await refresh();
-			navigate("/dashboard", { replace: true });
+			navigate("/calculate", { replace: true });
 		} catch (err: unknown) {
 			if (err instanceof AxiosError) {
 				setError(err.response?.data?.message || "Signin failed");

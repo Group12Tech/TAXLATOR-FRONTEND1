@@ -21,7 +21,8 @@ export default function SignUp() {
 	const location = useLocation();
 
 	// ------------------ Form state ------------------
-	const [fullName, setFullName] = useState("");
+	const [firstName, setFirstName] = useState("");
+	const [lastName, setLastName] = useState("");
 	const [email, setEmail] = useState(
 		(location.state as { email?: string })?.email ?? "",
 	);
@@ -34,20 +35,13 @@ export default function SignUp() {
 	const [error, setError] = useState("");
 	const [passwordFocused, setPasswordFocused] = useState(false);
 
-	// ------------------ Form validation ------------------
-	const hasNames = fullName.trim().length > 0;
-	const hasValidPassword = password.length >= 8 && password === confirmPassword;
-	const isFormValid =
-		hasNames && email.trim().length > 0 && hasValidPassword && agree && !busy;
-
 	// ------------------ Form submission ------------------
 	const onSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		console.log("🔥 Form Submitted");
 		setError("");
 
-		if (!fullName.trim()) {
-    setError("Full name is required.");
+		if (!firstName.trim() || !lastName.trim()) {
+    setError("First name and last name are required.");
     return;
 }
 
@@ -73,15 +67,17 @@ if (password !== confirmPassword) {
 		try {
 			// ✅ Signup via AuthProvider
 			await signup({
-					fullName,
-					email,
+					firstName: firstName.trim(),
+					lastName: lastName.trim(),
+					email: email.trim().toLowerCase(),
 					password,
 					confirmPassword,
-					redirectUrl: `${window.location.origin}/calculate`,
 				});
 
 			// ✅ Redirect to email verification page with pre-filled email
-			navigate("/verify-email", { state: { email } });
+			navigate("/verify-email", {
+				state: { email: email.trim().toLowerCase() },
+			});
 		} catch (err: unknown) {
 			if (err instanceof AxiosError) {
 				const message =
@@ -100,16 +96,6 @@ setError(message);
 		}
 	};
 
-console.log({
-    fullName,
-    email,
-    password,
-    confirmPassword,
-    agree,
-    hasValidPassword,
-    isFormValid,
-    busy,
-});
 	// ------------------ JSX ------------------
 	return (
 		<div className="bg-slate-200 min-h-[80vh] w-full flex items-center justify-center px-4 py-10">
@@ -141,16 +127,34 @@ console.log({
 					)}
 
 					{/* First & Last Name */}
-					<label className="text-xs font-semibold text-slate-700 mb-1 block">
-						Full Name
-					</label>
-					<input
-						className={inputStyles.inputBase}
-						value={fullName}
-						onChange={(e) => setFullName(e.target.value)}
-						placeholder="Enter your first name"
-						required
-					/>
+					<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+						<div>
+							<label className="text-xs font-semibold text-slate-700 mb-1 block">
+								First Name
+							</label>
+							<input
+								className={inputStyles.inputBase}
+								value={firstName}
+								onChange={(e) => setFirstName(e.target.value)}
+								placeholder="Enter your first name"
+								autoComplete="given-name"
+								required
+							/>
+						</div>
+						<div>
+							<label className="text-xs font-semibold text-slate-700 mb-1 block">
+								Last Name
+							</label>
+							<input
+								className={inputStyles.inputBase}
+								value={lastName}
+								onChange={(e) => setLastName(e.target.value)}
+								placeholder="Enter your last name"
+								autoComplete="family-name"
+								required
+							/>
+						</div>
+					</div>
 
 					{/* Email */}
 					<label className="text-xs font-semibold text-slate-700 mt-4 mb-1 block">

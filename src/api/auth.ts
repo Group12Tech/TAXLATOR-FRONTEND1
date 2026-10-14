@@ -3,7 +3,8 @@
 import { api } from "./client";
 
 export interface RegisterPayload {
-  fullName: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
   confirmPassword: string;
@@ -21,4 +22,3 @@ export const registerUser = async (
   const { data } = await api.post("/api/auth/signup", payload);
   return data;
 };
-

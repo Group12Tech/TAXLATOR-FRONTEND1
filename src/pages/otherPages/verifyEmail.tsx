@@ -1,28 +1,19 @@
 // src/pages/otherPages/verifyEmail.tsx
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../state/useAuth";
+import { getErrorMessage } from "../../api/getErrorMessage";
 
 type VerifyState = {
 	email?: string;
 };
 
-type ApiResponse = {
-	success?: boolean;
-	message?: string;
-};
+const CODE_LENGTH = 6;
+const RESEND_COOLDOWN_SECONDS = 60;
 
 function isEmail(value: string) {
 	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-}
-
-function getErrorMessage(error: unknown) {
-	if (error instanceof Error) {
-		return error.message;
-	}
-
-	return "Network error. Please try again.";
 }
 
 export default function VerifyEmail() {
@@ -33,23 +24,29 @@ export default function VerifyEmail() {
 	const state = (location.state as VerifyState | null) ?? null;
 
 	const [email, setEmail] = useState(state?.email ?? "");
+	const [digits, setDigits] = useState<string[]>(
+		Array(CODE_LENGTH).fill(""),
+	);
+	const [verifying, setVerifying] = useState(false);
 	const [resending, setResending] = useState(false);
 	const [cooldown, setCooldown] = useState(0);
 	const [error, setError] = useState("");
 	const [info, setInfo] = useState("");
 
-	// If the account is already authenticated, take the user into Taxlator.
+	const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
+
+	const code = digits.join("");
+
+	// Already signed in -> go straight into the app.
 	useEffect(() => {
 		if (auth.user) {
 			navigate("/calculate", { replace: true });
 		}
 	}, [auth.user, navigate]);
 
-	// Countdown used to prevent repeated verification emails.
+	// Resend cooldown timer.
 	useEffect(() => {
-		if (cooldown <= 0) {
-			return;
-		}
+		if (cooldown <= 0) return;
 
 		const timer = window.setInterval(() => {
 			setCooldown((current) => Math.max(current - 1, 0));
@@ -58,7 +55,44 @@ export default function VerifyEmail() {
 		return () => window.clearInterval(timer);
 	}, [cooldown]);
 
-	const resendVerificationEmail = async () => {
+	const handleDigitChange = (index: number, value: string) => {
+		setError("");
+		const cleaned = value.replace(/\D/g, "");
+
+		// Handles typing, autofill and pasting several digits into one box.
+		if (cleaned.length > 1) {
+			const next = [...digits];
+			cleaned
+				.slice(0, CODE_LENGTH - index)
+				.split("")
+				.forEach((char, i) => {
+					next[index + i] = char;
+				});
+			setDigits(next);
+			const focusIndex = Math.min(index + cleaned.length, CODE_LENGTH - 1);
+			inputRefs.current[focusIndex]?.focus();
+			return;
+		}
+
+		const next = [...digits];
+		next[index] = cleaned;
+		setDigits(next);
+
+		if (cleaned && index < CODE_LENGTH - 1) {
+			inputRefs.current[index + 1]?.focus();
+		}
+	};
+
+	const handleKeyDown = (
+		index: number,
+		event: React.KeyboardEvent<HTMLInputElement>,
+	) => {
+		if (event.key === "Backspace" && !digits[index] && index > 0) {
+			inputRefs.current[index - 1]?.focus();
+		}
+	};
+
+	const verifyCode = async () => {
 		setError("");
 		setInfo("");
 
@@ -69,49 +103,50 @@ export default function VerifyEmail() {
 			return;
 		}
 
-		if (cooldown > 0 || resending) {
+		if (code.length !== CODE_LENGTH) {
+			setError(`Enter the ${CODE_LENGTH}-digit code from your email.`);
 			return;
 		}
+
+		setVerifying(true);
+
+		try {
+			await auth.verifyEmail({ email: normalizedEmail, otp: code });
+			// Verified AND logged in (JWT cookie set) -> go into the app.
+			navigate("/calculate", { replace: true });
+		} catch (err: unknown) {
+			setError(getErrorMessage(err, "Invalid or expired code."));
+		} finally {
+			setVerifying(false);
+		}
+	};
+
+	const resendCode = async () => {
+		setError("");
+		setInfo("");
+
+		const normalizedEmail = email.trim().toLowerCase();
+
+		if (!isEmail(normalizedEmail)) {
+			setError("Enter a valid email address.");
+			return;
+		}
+
+		if (cooldown > 0 || resending) return;
 
 		setResending(true);
 
 		try {
-			/*
-			 * The backend still exposes /api/auth/send-code.
-			 * Despite the old endpoint name, the current backend sends
-			 * a clickable confirmation LINK, not a 6-digit code.
-			 */
-			const response = await fetch(
-				`${import.meta.env.VITE_API_BASE_URL}/api/auth/send-code`,
-				{
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					credentials: "include",
-					body: JSON.stringify({
-						email: normalizedEmail,
-						redirectUrl: `${window.location.origin}/calculate`,
-					}),
-				},
-			);
+			const data = (await auth.resendOtp({
+				email: normalizedEmail,
+			})) as { message?: string } | null;
 
-			const data = (await response.json().catch(() => ({}))) as ApiResponse;
-
-			if (!response.ok || !data.success) {
-				throw new Error(
-					data.message || "Could not resend the verification email.",
-				);
-			}
-
-			setInfo(
-				data.message ||
-					"A new verification link has been sent to your email.",
-			);
-
-			setCooldown(60);
-		} catch (error: unknown) {
-			setError(getErrorMessage(error));
+			setInfo(data?.message || "A new code has been sent to your email.");
+			setDigits(Array(CODE_LENGTH).fill(""));
+			inputRefs.current[0]?.focus();
+			setCooldown(RESEND_COOLDOWN_SECONDS);
+		} catch (err: unknown) {
+			setError(getErrorMessage(err, "Could not resend the code."));
 		} finally {
 			setResending(false);
 		}
@@ -122,37 +157,13 @@ export default function VerifyEmail() {
 			<div className="w-full max-w-md bg-white rounded-2xl border shadow-soft overflow-hidden">
 				{/* Header */}
 				<div className="p-6 border-b text-center">
-					<div className="w-14 h-14 mx-auto rounded-xl bg-brand-700 text-white grid place-items-center">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							strokeWidth="1.8"
-							className="w-7 h-7"
-							aria-hidden="true"
-						>
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								d="M3 7.5A2.5 2.5 0 0 1 5.5 5h13A2.5 2.5 0 0 1 21 7.5v9a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 16.5v-9Z"
-							/>
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								d="m4 7 8 6 8-6"
-							/>
-						</svg>
+					<div className="text-xl font-semibold text-slate-900">
+						Verify your email
 					</div>
-
-					<div className="mt-4 text-xl font-semibold text-slate-900">
-						Check your email
-					</div>
-
 					<div className="mt-2 text-sm text-slate-600 leading-6">
-						We&apos;ve sent a verification link to your email address.
-						Click the link in the email to activate your Taxlator
-						account.
+						We sent a {CODE_LENGTH}-digit code to your email address.
+						Enter it below to activate your Taxlator account. The code
+						expires in 10 minutes.
 					</div>
 				</div>
 
@@ -160,10 +171,9 @@ export default function VerifyEmail() {
 					className="p-6"
 					onSubmit={(event) => {
 						event.preventDefault();
-						resendVerificationEmail();
+						verifyCode();
 					}}
 				>
-					{/* Error */}
 					{error && (
 						<div
 							className="mb-4 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg p-3"
@@ -173,7 +183,6 @@ export default function VerifyEmail() {
 						</div>
 					)}
 
-					{/* Success / information */}
 					{info && (
 						<div
 							className="mb-4 text-sm text-green-800 bg-green-50 border border-green-200 rounded-lg p-3"
@@ -190,7 +199,6 @@ export default function VerifyEmail() {
 					>
 						Email Address
 					</label>
-
 					<input
 						id="verification-email"
 						type="email"
@@ -206,51 +214,56 @@ export default function VerifyEmail() {
 						required
 					/>
 
-					{/* Instructions */}
-					<div className="mt-5 rounded-lg bg-slate-50 border border-slate-200 p-4">
-						<div className="text-sm font-semibold text-slate-800">
-							What to do next
-						</div>
-
-						<ol className="mt-2 space-y-2 text-xs text-slate-600">
-							<li>
-								<span className="font-semibold text-slate-800">1.</span>{" "}
-								Open your email inbox.
-							</li>
-							<li>
-								<span className="font-semibold text-slate-800">2.</span>{" "}
-								Find the email from Taxlator.
-							</li>
-							<li>
-								<span className="font-semibold text-slate-800">3.</span>{" "}
-								Click <strong>Confirm My Email</strong>.
-							</li>
-							<li>
-								<span className="font-semibold text-slate-800">4.</span>{" "}
-								You&apos;ll be redirected back to Taxlator.
-							</li>
-						</ol>
+					{/* OTP boxes */}
+					<label className="mt-5 block text-xs font-semibold text-slate-700">
+						Verification Code
+					</label>
+					<div className="mt-2 flex justify-between gap-1.5 sm:gap-2">
+						{digits.map((digit, index) => (
+							<input
+								key={index}
+								ref={(el) => {
+									inputRefs.current[index] = el;
+								}}
+								type="text"
+								inputMode="numeric"
+								autoComplete={index === 0 ? "one-time-code" : "off"}
+								maxLength={CODE_LENGTH}
+								value={digit}
+								onChange={(e) => handleDigitChange(index, e.target.value)}
+								onKeyDown={(e) => handleKeyDown(index, e)}
+								onFocus={(e) => e.target.select()}
+								aria-label={`Digit ${index + 1}`}
+								className="min-w-0 flex-1 max-w-12 h-12 text-center text-lg font-semibold rounded-lg border outline-none focus:ring-2 focus:ring-brand-200"
+							/>
+						))}
 					</div>
 
-					{/* Resend */}
 					<button
 						type="submit"
-						disabled={resending || cooldown > 0}
-						className="mt-5 w-full rounded-lg bg-brand-800 text-white py-2.5 text-sm font-semibold hover:bg-brand-900 disabled:opacity-60 disabled:cursor-not-allowed"
+						disabled={verifying || code.length !== CODE_LENGTH}
+						className="mt-6 w-full rounded-lg bg-brand-800 text-white py-2.5 text-sm font-semibold hover:bg-brand-900 disabled:opacity-60 disabled:cursor-not-allowed"
 					>
-						{resending
-							? "Sending verification link..."
-							: cooldown > 0
-								? `Resend verification link (${cooldown}s)`
-								: "Resend verification link"}
+						{verifying ? "Verifying..." : "Verify email"}
 					</button>
 
-					{/* Spam folder note */}
+					<button
+						type="button"
+						onClick={resendCode}
+						disabled={resending || cooldown > 0}
+						className="mt-3 w-full rounded-lg border py-2.5 text-sm font-semibold text-brand-800 hover:bg-slate-50 disabled:opacity-60 disabled:cursor-not-allowed"
+					>
+						{resending
+							? "Sending code..."
+							: cooldown > 0
+								? `Resend code (${cooldown}s)`
+								: "Resend code"}
+					</button>
+
 					<p className="mt-4 text-xs text-slate-500 text-center leading-5">
 						Can&apos;t find the email? Check your spam or junk folder.
 					</p>
 
-					{/* Back to signup */}
 					<div className="mt-4 text-xs text-slate-600 text-center">
 						Wrong email?{" "}
 						<Link
@@ -261,7 +274,6 @@ export default function VerifyEmail() {
 						</Link>
 					</div>
 
-					{/* Sign in */}
 					<div className="mt-2 text-xs text-slate-600 text-center">
 						Already verified?{" "}
 						<Link
